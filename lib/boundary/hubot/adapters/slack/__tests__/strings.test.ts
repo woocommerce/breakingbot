@@ -38,7 +38,7 @@ describe("slack/string.ts", () => {
 			const formattedTrackerUid = "BREAKING-42";
 
 			const topic = fmtIncidentTopic(activeIncident, formattedTrackerUid);
-			const expectedTopic = `:${hiPriority()}: [P1][auth-service] *TEST INCIDENT* - Point: <@point_person>, Comms: <@comms_person>, Triage: <@triage_person>, Eng: <@eng_lead>, BREAKING-42`;
+			const expectedTopic = `:${hiPriority()}: [P1][auth-service] *Test Incident* - Point: <@point_person>, Comms: <@comms_person>, Triage: <@triage_person>, Eng: <@eng_lead>, BREAKING-42`;
 
 			expect(topic).toEqual(expectedTopic);
 		});
@@ -51,7 +51,7 @@ describe("slack/string.ts", () => {
 
 			const topic = fmtIncidentTopic(inactiveIncident);
 			const expectedTopic =
-				":heavy_multiplication_x: [P5] *TEST INCIDENT LOW PRIORITY* - Point: _nobody_, Comms: _nobody_";
+				":heavy_multiplication_x: [P5] *Test Incident Low Priority* - Point: _nobody_, Comms: _nobody_";
 
 			expect(topic).toEqual(expectedTopic);
 		});
@@ -64,7 +64,7 @@ describe("slack/string.ts", () => {
 			});
 
 			const topic = fmtIncidentTopic(resolvedIncident);
-			const expectedTopic = `:${incidentInactive()}: [P2] *ANOTHER TEST INCIDENT*`;
+			const expectedTopic = `:${incidentInactive()}: [P2] *Another Test Incident*`;
 
 			expect(topic).toEqual(expectedTopic);
 		});
@@ -78,7 +78,7 @@ describe("slack/string.ts", () => {
 			});
 			const topic = fmtIncidentTopic(incident);
 
-			const expectedTopic = `:${incidentInactive()}: [P4][gifs][lol] *MINOR GLITCH*`;
+			const expectedTopic = `:${incidentInactive()}: [P4][gifs][lol] *Minor Glitch*`;
 			expect(topic).toEqual(expectedTopic);
 		});
 
@@ -91,7 +91,7 @@ describe("slack/string.ts", () => {
 			});
 			const topic = fmtIncidentTopic(incident, "BREAKING-420");
 
-			const expectedTopic = `:${incidentInactive()}: [P4][gifs] *MINOR GLITCH* - BREAKING-420`;
+			const expectedTopic = `:${incidentInactive()}: [P4][gifs] *Minor Glitch* - BREAKING-420`;
 			expect(topic).toEqual(expectedTopic);
 		});
 
@@ -109,7 +109,7 @@ describe("slack/string.ts", () => {
 			const formattedTrackerUid = "BREAKING-42";
 
 			const topic = fmtIncidentTopic(activeIncident, formattedTrackerUid);
-			const expectedTopic = `:${blocked()}: [P1][blocked][auth-service] *TEST INCIDENT* - Blocked on: An external system, Point: <@point_person>, Comms: <@comms_person>, Triage: <@triage_person>, Eng: <@eng_lead>, BREAKING-42`;
+			const expectedTopic = `:${blocked()}: [P1][blocked][auth-service] *Test Incident* - Blocked on: An external system, Point: <@point_person>, Comms: <@comms_person>, Triage: <@triage_person>, Eng: <@eng_lead>, BREAKING-42`;
 
 			expect(topic).toEqual(expectedTopic);
 		});

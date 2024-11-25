@@ -57,6 +57,7 @@ import {
 	factor,
 	fiery,
 	git,
+	hiPriority,
 	incidentCanceled,
 	rip,
 	siren,
@@ -157,11 +158,17 @@ export class Slack extends Adapter implements CommPlatform {
 			return this.#failFast("notifyNewIncident: Missing chat room!");
 		}
 
-		const blocks = newBreakingBlocks(title, chatRoomUid, createdBy);
 		const emoji = priorityEmoji(priority);
 		const fmtRoom = this.fmtRoom(chatRoomUid);
 		const fmtUser = this.fmtUser(createdBy);
-		const text = `:${emoji}: ${fmtRoom}: *${title.toUpperCase()}* started by ${fmtUser}`;
+		const prefix = priorityName(priority);
+		const text = `:${emoji}: ${fmtRoom}: *${title}* started by ${fmtUser}`;
+
+		const header = `:${hiPriority()}: :${emoji}: New Breaking: [${prefix}] ${title}`;
+		const desc = `*<!channel>:* ${fmtRoom}`;
+		const footer = `started by ${fmtUser}`;
+
+		const blocks = newBreakingBlocks(header, desc, footer);
 
 		const tasks = [this.#sendToChannel(mainChannel, blocks, text)];
 
@@ -180,12 +187,21 @@ export class Slack extends Adapter implements CommPlatform {
 			return this.#failFast("notifyNewIncident: Missing chat room!");
 		}
 
+		const prefix = priorityName(priority);
 		const emoji = priorityEmoji(priority);
 		const fmtRoom = this.fmtRoom(chatRoomUid);
 		const fmtUser = this.fmtUser(createdBy);
-		const text = `:${emoji}: ${fmtRoom}: *${title.toUpperCase()}* started by ${fmtUser}`;
+		const text = `:${emoji}: *${title}* ${fmtRoom} started by ${fmtUser}`;
 
-		return this.#sendToChannel(mainChannel, [mrkdownBlock(text)], text);
+		const header = `:${emoji}: [${prefix}] Started: ${title}`;
+		const desc = `*<!here>:* ${fmtRoom}`;
+		const footer = `started by ${fmtUser}`;
+
+		const blocks = newBreakingBlocks(header, desc, footer);
+
+		const tasks = [this.#sendToChannel(mainChannel, blocks, text)];
+
+		return Promise.allSettled(tasks);
 	}
 
 	async introNewIncident(
@@ -193,7 +209,7 @@ export class Slack extends Adapter implements CommPlatform {
 		config: AppConfig,
 		formattedTrackerUid?: string,
 	) {
-		const { chatRoomUid, createdBy, priority, title } = incident;
+		const { chatRoomUid, createdBy, title } = incident;
 
 		if (!chatRoomUid) {
 			return this.#failFast("introNewIncident: Missing chat room!");
@@ -209,12 +225,11 @@ export class Slack extends Adapter implements CommPlatform {
 			introNewIncidentBlocks(
 				chatRoomUid,
 				createdBy,
-				priority,
 				title,
 				config,
 				formattedTrackerUid,
 			),
-			`Tracking ${incident.title.toUpperCase()} in ${formattedTrackerUid}`,
+			`Tracking ${incident.title} in ${formattedTrackerUid}`,
 		);
 	}
 
@@ -597,7 +612,7 @@ export class Slack extends Adapter implements CommPlatform {
 		return this.#sendToChannel(
 			incident.chatRoomUid,
 			resolvedBlocks(incident, log, tracker),
-			`All clear! for incident ${incident.title.toUpperCase()}`,
+			`All clear! for incident ${incident.title}`,
 		);
 	}
 
@@ -618,12 +633,12 @@ export class Slack extends Adapter implements CommPlatform {
 			divider(),
 			headerBlock(`ALL CLEAR! :${allClear()}:`),
 			mrkdownBlock(
-				`${fmtChatRoom}: [${fmtPriority}] *${title.toUpperCase()}* resolved after ${duration} :${rip()}:`,
+				`${fmtChatRoom}: [${fmtPriority}] *${title}* resolved after ${duration} :${rip()}:`,
 			),
 			divider(),
 		];
 
-		const text = `:${allClear()}: ${fmtChatRoom}: [${fmtPriority}] *${title.toUpperCase()}* resolved after ${duration} :${rip()}:`;
+		const text = `:${allClear()}: ${fmtChatRoom}: [${fmtPriority}] *${title}* resolved after ${duration} :${rip()}:`;
 		const tasks = [this.#sendToChannel(mainChannel, blocks, text)];
 
 		if (notifyChannel) {
@@ -644,7 +659,7 @@ export class Slack extends Adapter implements CommPlatform {
 		const duration = humanDateDiff(createdAt, resolvedAt);
 		const fmtChatRoom = this.fmtRoom(chatRoomUid);
 		const fmtPriority = priorityName(priority);
-		const text = `:${allClear()}: ${fmtChatRoom}: [${fmtPriority}] *${title.toUpperCase()}* resolved after ${duration} :${rip()}:`;
+		const text = `:${allClear()}: ${fmtChatRoom}: [${fmtPriority}] *${title}* resolved after ${duration} :${rip()}:`;
 
 		return this.#sendToChannel(mainChannel, [mrkdownBlock(text)], text);
 	}
@@ -661,7 +676,7 @@ export class Slack extends Adapter implements CommPlatform {
 			divider(),
 		];
 
-		const text = `Incident ${incident.title.toUpperCase()} marked completed`;
+		const text = `Incident ${incident.title} marked completed`;
 
 		return this.#sendToChannel(incident.chatRoomUid, blocks, text);
 	}
@@ -677,7 +692,7 @@ export class Slack extends Adapter implements CommPlatform {
 
 		const channel = this.fmtRoom(chatRoomUid);
 		const priority = priorityName(incidentPriority);
-		const title = incidentTitle.toUpperCase();
+		const title = incidentTitle;
 		const text = `:${incidentCanceled()}: CANCELED: ~${channel}: [${priority}] ${title}~`;
 
 		const tasks = [
@@ -686,7 +701,7 @@ export class Slack extends Adapter implements CommPlatform {
 				[
 					divider(),
 					headerBlock(`CANCELED :${incidentCanceled()}:`),
-					mrkdownBlock(`~${channel}: ${title}~`),
+					mrkdownBlock(`~${channel}: [${priority}] ${title}~`),
 					mrkdownBlock("This channel will be archived shortly."),
 					divider(),
 				],
@@ -717,7 +732,7 @@ export class Slack extends Adapter implements CommPlatform {
 		const fmtChannel = this.fmtRoom(chatRoomUid);
 		const emoji = priorityEmoji(incidentPriority);
 		const priority = priorityName(incidentPriority);
-		const title = incidentTitle.toUpperCase();
+		const title = incidentTitle;
 		const text = `:${emoji}: RESTARTED: ${fmtChannel}: [${priority}] *${title}*`;
 
 		const tasks = [
@@ -780,7 +795,7 @@ export class Slack extends Adapter implements CommPlatform {
 			user,
 			blocks: [
 				mrkdownBlock(`Hi, <@${user}>! Welcome to <#${channel}>.\n\n`),
-				headerBlock(incident.title.toUpperCase()),
+				headerBlock(incident.title),
 				divider(),
 				mrkdownBlock("*Summary:*"),
 				summaryBodyBlock(incident.summary),
@@ -1000,13 +1015,13 @@ export class Slack extends Adapter implements CommPlatform {
 			chatRoomUid,
 			[
 				headerBlock("<BEGIN INCIDENT REVIEW>"),
-				mrkdownBlock(`*${titlePrefix}${incident.title.toUpperCase()}*`),
+				mrkdownBlock(`*${titlePrefix}${incident.title}*`),
 				mrkdownBlock(
 					"_Please invite any relevant PR authors, team channels, etc to the review._",
 				),
 				mrkdownBlock(`> *Summary:*\n> \`\`\`${incident.summary}\`\`\``),
 			],
-			`*${titlePrefix}${title.toLocaleUpperCase()}* is ready for review`,
+			`*${titlePrefix}${title}* is ready for review`,
 		);
 
 		const factors = log
@@ -1075,9 +1090,7 @@ export class Slack extends Adapter implements CommPlatform {
 		return this.#sendToChannel(
 			chatRoomUid,
 			[
-				mrkdownBlock(
-					`<!channel> *${titlePrefix}${title.toUpperCase()} is in review*`,
-				),
+				mrkdownBlock(`<!channel> *${titlePrefix}${title} is in review*`),
 				bulletList(
 					[
 						"Read the emerging incident report above",
@@ -1089,7 +1102,7 @@ export class Slack extends Adapter implements CommPlatform {
 					"Review Instructions",
 				),
 			],
-			`${titlePrefix}${title.toUpperCase()} - read the emerging incident report in Slack`,
+			`${titlePrefix}${title} - read the emerging incident report in Slack`,
 		);
 	}
 
@@ -1202,7 +1215,7 @@ export class Slack extends Adapter implements CommPlatform {
 
 		const formattedRoom = this.fmtRoom(incident.chatRoomUid);
 		const incidentRoomAlert = `> :${siren()}: *No .point set!*\n> Hey <!here>, nobody has grabbed point yet! Can somebody take it with \`.point\`?`;
-		const mainRoomAlert = `> :${siren()}: *No .point set for ${incident.title.toUpperCase()}*\n> Can somebody take point in ${formattedRoom}?`;
+		const mainRoomAlert = `> :${siren()}: *No .point set for:* ${incident.title}\n> Can somebody take point in ${formattedRoom}?`;
 
 		const t1 = this.#sendToChannel(
 			incident.chatRoomUid,
@@ -1226,7 +1239,7 @@ export class Slack extends Adapter implements CommPlatform {
 
 		const formattedRoom = this.fmtRoom(incident.chatRoomUid);
 		const incidentRoomAlert = `> :${siren()}: *No .comms set!*\n> Hey <!here>, nobody has grabbed comms yet! Can somebody take it with \`.comms\`?`;
-		const mainRoomAlert = `> :${siren()}: *No .comms set for ${incident.title.toUpperCase()}*\n> Can somebody take comms in ${formattedRoom}?`;
+		const mainRoomAlert = `> :${siren()}: *No .comms set for:* ${incident.title}\n> Can somebody take comms in ${formattedRoom}?`;
 
 		const t1 = this.#sendToChannel(
 			incident.chatRoomUid,

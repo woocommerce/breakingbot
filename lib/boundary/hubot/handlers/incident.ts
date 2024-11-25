@@ -1206,6 +1206,7 @@ export const incidentStatusAllActive = (
 
 	for (const key in robot.incidents) {
 		incidents.push(robot.incidents[key].data());
+		console.log(robot.incidents[key].data());
 	}
 
 	return robot.adapter.sendStatusAllActive(

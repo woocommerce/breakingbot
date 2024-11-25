@@ -8,7 +8,6 @@ import {
 } from "../../../../core/date.js";
 import { core4String } from "../../../../core/metrics.js";
 import {
-	isHighPriority,
 	isReviewRequiredForPriority,
 	priorityEmoji,
 	priorityName,
@@ -24,13 +23,10 @@ import {
 	engLead,
 	factor,
 	git,
-	hiPriority,
 	incidentActive,
 	logEmoji,
-	lowPriority,
 	point,
 	rip,
-	siren,
 	tracker,
 	triage,
 } from "./emoji.js";
@@ -46,6 +42,7 @@ import {
 
 import type {
 	Block,
+	ContextBlock,
 	DividerBlock,
 	HeaderBlock,
 	ImageBlock,
@@ -73,6 +70,18 @@ export const richTextBlock = (text: string): RichTextBlock => {
 						text,
 					},
 				],
+			},
+		],
+	};
+};
+
+export const contextBlock = (text: string): ContextBlock => {
+	return {
+		type: "context",
+		elements: [
+			{
+				type: "mrkdwn",
+				text: text,
 			},
 		],
 	};
@@ -178,30 +187,14 @@ export const mrkdownList = (
 
 export const newBreakingBlocks = (
 	title: string,
-	channel: string,
-	createdBy: string,
+	desc: string,
+	footer: string,
 ) => {
 	return [
 		divider(),
-		headerBlock(title.toUpperCase()),
-		mrkdownBlock(
-			`:${hiPriority()}: :${siren()}: <#${channel}> <!channel> started by <@${createdBy}>`,
-		),
-		divider(),
-	];
-};
-
-export const newLowBreakingBlocks = (
-	title: string,
-	channel: string,
-	createdBy: string,
-) => {
-	return [
-		divider(),
-		headerBlock(title.toUpperCase()),
-		mrkdownBlock(
-			`:${lowPriority()}: <#${channel}>: ${title.toUpperCase()} started by <@${createdBy}>`,
-		),
+		headerBlock(title),
+		mrkdownBlock(desc),
+		contextBlock(footer),
 		divider(),
 	];
 };
@@ -209,14 +202,11 @@ export const newLowBreakingBlocks = (
 export const introNewIncidentBlocks = (
 	chatRoomUid: string,
 	createdBy: string,
-	priority: number,
 	title: string,
 	config: AppConfig,
 	formattedTrackerUid?: string,
 ) => {
-	const blocks = isHighPriority(priority)
-		? newBreakingBlocks(title, chatRoomUid, createdBy)
-		: newLowBreakingBlocks(title, chatRoomUid, createdBy);
+	const blocks = newBreakingBlocks(title, chatRoomUid, createdBy);
 
 	if (formattedTrackerUid) {
 		blocks.push(
@@ -447,7 +437,7 @@ export const statusAllActiveBlocks = (
 		const title = fmtIncidentTitle(incident);
 		const channel = fmtChannel(incident.chatRoomUid);
 		const ago = humanRelativeNow(incident.createdAt);
-		const headline = `:${emoji}: ${channel}: ${title}\n`;
+		const headline = `:${emoji}: ${title}\n`;
 		const point = incident.point ? users.get(incident.point) : undefined;
 		const comms = incident.comms ? users.get(incident.comms) : undefined;
 		const leads = fmtLeadsNoMention(point, comms);
@@ -456,7 +446,9 @@ export const statusAllActiveBlocks = (
 			tracker && incident.trackerUid
 				? `, tracked in ${tracker.fmtUidForSlack(incident.trackerUid)}`
 				: "";
-		blocks.push(mrkdownBlock(headline + byline + tracking));
+		blocks.push(mrkdownBlock(headline + tracking));
+		//blocks.push(mrkdownBlock(channel));
+		blocks.push(contextBlock(`${byline}·in·${channel}`));
 		blocks.push(divider());
 	}
 
@@ -464,9 +456,9 @@ export const statusAllActiveBlocks = (
 		const title = fmtIncidentTitle(incident);
 		const channel = fmtChannel(incident.chatRoomUid);
 		const ago = humanRelativeNow(incident.createdAt);
-		blocks.push(
-			mrkdownBlock(`${channel}: ${title} - mitigated, started ${ago}`),
-		);
+		blocks.push(mrkdownBlock(`${title}`));
+		blocks.push(contextBlock(`mitigated, started ${ago} in ${channel}`));
+		blocks.push(divider());
 	}
 
 	return blocks;
@@ -641,7 +633,7 @@ export const resolvedBlocks = (
 	// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: yeeup. I'll allow it. For now.
 ) => {
 	const channel = incident.chatRoomUid;
-	const title = incident.title.toUpperCase();
+	const title = incident.title;
 	const duration = humanDateDiff(incident.createdAt, iso9075Now());
 	const gif = {
 		url: gifConfig.fun[Math.floor(Math.random() * gifConfig.fun.length)],
@@ -652,7 +644,7 @@ export const resolvedBlocks = (
 		divider(),
 		headerBlock(`ALL CLEAR! :${allClear()}:`),
 		mrkdownBlock(
-			`<#${channel}>: ${title} is resolved after ${duration} :${rip()}:`,
+			`<#${channel}>: *${title}* is resolved after ${duration} :${rip()}:`,
 		),
 		imageBlock(gif.url, gif.altText),
 	];

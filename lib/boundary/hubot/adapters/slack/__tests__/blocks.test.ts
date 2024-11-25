@@ -189,7 +189,7 @@ describe("slack/blocks.ts", () => {
 				type: "header",
 				text: {
 					type: "plain_text",
-					text: "BREAKING NEWS",
+					text: "Header: BREAKING NEWS",
 					emoji: true,
 				},
 			},
@@ -197,13 +197,26 @@ describe("slack/blocks.ts", () => {
 				type: "section",
 				text: {
 					type: "mrkdwn",
-					text: ":fire: :rotating_light: <#C12345> <!channel> started by <@U12345>",
+					text: "Description: Something Happened",
 				},
+			},
+			{
+				elements: [
+					{
+						type: "mrkdwn",
+						text: "Footer: Vince",
+					},
+				],
+				type: "context",
 			},
 			{ type: "divider" },
 		];
 
-		const result = newBreakingBlocks("BREAKING NEWS", "C12345", "U12345");
+		const result = newBreakingBlocks(
+			"Header: BREAKING NEWS",
+			"Description: Something Happened",
+			"Footer: Vince",
+		);
 		expect(result).toEqual(expectedOutput);
 	});
 

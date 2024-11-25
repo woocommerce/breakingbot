@@ -63,7 +63,7 @@ export const fmtIncidentTopic = (
 	const prefix = fmtTopicPrefix(prefixes);
 	const postfix = fmtTopicPostfix(incidentDetails);
 
-	return `:${emoji}: ${prefix}*${incident.title.toUpperCase()}*${postfix}`;
+	return `:${emoji}: ${prefix}*${incident.title}*${postfix}`;
 };
 
 export const fmtTopicEmoji = (incident: Incident): string => {
@@ -107,7 +107,7 @@ export const fmtIncidentTitle = (incident: Incident) => {
 
 	const prefix = fmtTopicPrefix(prefixes);
 
-	return `${prefix}*${incident.title.toUpperCase()}*`;
+	return `${prefix}*${incident.title}*`;
 };
 
 export const fmtIncidentTitleShort = (
@@ -121,7 +121,7 @@ export const fmtIncidentTitleShort = (
 		prefixes.push(stateOfInterest.toLowerCase());
 	}
 
-	return fmtTopicPrefix(prefixes) + incident.title.toUpperCase();
+	return fmtTopicPrefix(prefixes) + incident.title;
 };
 
 export const fmtMainRoomTopic = (activeIncidents: Incident[]): string => {

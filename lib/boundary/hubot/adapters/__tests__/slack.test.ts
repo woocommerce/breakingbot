@@ -105,16 +105,15 @@ describe("slack.ts", () => {
 			const incident = createIncident();
 
 			await slack.notifyNewIncident(incident, "C3984354");
-
 			expect(webClient.chat.postMessage).toHaveBeenCalledWith(
 				expect.objectContaining({
 					blocks: newBreakingBlocks(
-						incident.title,
-						incident.chatRoomUid || "",
-						incident.createdBy,
+						`:fire: :fire: New Breaking: [P${incident.priority}] ${incident.title}`,
+						"*<!channel>:* <#unit-test-breaking-42>",
+						"started by <@hanni>",
 					),
 					channel: "C3984354",
-					text: ":fire: <#unit-test-breaking-42>: *TESTING 123* started by <@hanni>",
+					text: ":fire: <#unit-test-breaking-42>: *Testing 123* started by <@hanni>",
 				}),
 			);
 		});
@@ -137,7 +136,7 @@ describe("slack.ts", () => {
 				expect.objectContaining({
 					blocks: anyArray(),
 					channel: "C3984354",
-					text: ":fire: <#unit-test-breaking-42>: *TESTING 123* started by <@hanni>",
+					text: ":fire: *Testing 123* <#unit-test-breaking-42> started by <@hanni>",
 				}),
 			);
 		});
@@ -159,16 +158,14 @@ describe("slack.ts", () => {
 			expect(webClient.conversations.setTopic).toHaveBeenCalledWith({
 				channel: incident.chatRoomUid,
 				topic:
-					":fire: [P2] *TESTING 123* - Point: _nobody_, Comms: _nobody_, BREAKING-123",
+					":fire: [P2] *Testing 123* - Point: _nobody_, Comms: _nobody_, BREAKING-123",
 			});
 
 			expect(webClient.chat.postMessage).toHaveBeenCalledWith(
 				expect.objectContaining({
-					blocks: expect.arrayContaining([
-						headerBlock(incident.title.toUpperCase()),
-					]),
+					blocks: expect.arrayContaining([headerBlock(incident.title)]),
 					channel: incident.chatRoomUid,
-					text: "Tracking TESTING 123 in BREAKING-123",
+					text: "Tracking Testing 123 in BREAKING-123",
 					// biome-ignore lint/style/useNamingConvention: Slack defined
 					unfurl_links: false,
 				}),
@@ -191,7 +188,7 @@ describe("slack.ts", () => {
 
 			expect(webClient.conversations.setTopic).toHaveBeenCalledWith({
 				channel: incident.chatRoomUid,
-				topic: ":fire: [P2] *TESTING 123* - Point: _nobody_, Comms: _nobody_",
+				topic: ":fire: [P2] *Testing 123* - Point: _nobody_, Comms: _nobody_",
 			});
 		});
 
@@ -206,7 +203,7 @@ describe("slack.ts", () => {
 			expect(webClient.conversations.setTopic).toHaveBeenCalledWith({
 				channel: incident.chatRoomUid,
 				topic:
-					":fire: [P2] *COMPREHENSIVE INFRASTRUCTURE OUTAGE ACROSS MULTIPLE DATA CENTERS AFFECTING GLOBAL OPERATIONS, COMMUNICATION SERVICES, ONLINE PLATFORMS, AND CUSTOMER SUPPORT SYSTEMS LEADING TO EXTENSIVE DOWNTIME AND SERVICE INTERRUPTION FOR NUMEROUS C...",
+					":fire: [P2] *Comprehensive Infrastructure Outage Across Multiple Data Centers Affecting Global Operations, Communication Services, Online Platforms, and Customer Support Systems Leading to Extensive Downtime and Service Interruption for Numerous C...",
 			});
 		});
 
@@ -451,7 +448,7 @@ describe("slack.ts", () => {
 						headerBlock(`ALL CLEAR! :${allClear()}:`),
 					]),
 					channel: incident.chatRoomUid,
-					text: "All clear! for incident TESTING 123",
+					text: "All clear! for incident Testing 123",
 					// biome-ignore lint/style/useNamingConvention: Slack defined
 					unfurl_links: false,
 				}),
@@ -476,7 +473,7 @@ describe("slack.ts", () => {
 				expect.objectContaining({
 					blocks: anyArray(),
 					channel: "C3984354",
-					text: ":sunny: <#unit-test-breaking-42>: [P2] *TESTING 123* resolved after 34 days, 5 hours, 10 minutes :dove_of_peace:",
+					text: ":sunny: <#unit-test-breaking-42>: [P2] *Testing 123* resolved after 34 days, 5 hours, 10 minutes :dove_of_peace:",
 				}),
 			);
 		});
@@ -507,7 +504,7 @@ describe("slack.ts", () => {
 			await slack.notifyResolvedLowIncident(incident, "C3984354");
 
 			const text =
-				":sunny: <#unit-test-breaking-42>: [P2] *TESTING 123* resolved after 34 days, 5 hours, 10 minutes :dove_of_peace:";
+				":sunny: <#unit-test-breaking-42>: [P2] *Testing 123* resolved after 34 days, 5 hours, 10 minutes :dove_of_peace:";
 
 			expect(webClient.chat.postMessage).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -540,7 +537,7 @@ describe("slack.ts", () => {
 	describe("notifyCanceled", () => {
 		test("success", () => {
 			const incident = createIncident();
-			const text = `:heavy_multiplication_x: CANCELED: ~<#unit-test-breaking-42>: [P2] ${incident.title.toUpperCase()}~`;
+			const text = `:heavy_multiplication_x: CANCELED: ~<#unit-test-breaking-42>: [P2] ${incident.title}~`;
 
 			slack.notifyCanceled(incident, "#main-room");
 
@@ -565,7 +562,7 @@ describe("slack.ts", () => {
 
 		test("success with notify room", () => {
 			const incident = createIncident();
-			const text = `:heavy_multiplication_x: CANCELED: ~<#unit-test-breaking-42>: [P2] ${incident.title.toUpperCase()}~`;
+			const text = `:heavy_multiplication_x: CANCELED: ~<#unit-test-breaking-42>: [P2] ${incident.title}~`;
 
 			slack.notifyCanceled(incident, "#main-room", "#notify-room");
 
@@ -598,7 +595,7 @@ describe("slack.ts", () => {
 
 		test("success with low priority skipping notify room", () => {
 			const incident = createIncident({ priority: 4 });
-			const text = `:heavy_multiplication_x: CANCELED: ~<#unit-test-breaking-42>: [P4] ${incident.title.toUpperCase()}~`;
+			const text = `:heavy_multiplication_x: CANCELED: ~<#unit-test-breaking-42>: [P4] ${incident.title}~`;
 
 			slack.notifyCanceled(incident, "#main-room", "#notify-room");
 
@@ -638,7 +635,7 @@ describe("slack.ts", () => {
 	describe("notifyRestarted", () => {
 		test("success", () => {
 			const incident = createIncident();
-			const text = `:fire: RESTARTED: <#unit-test-breaking-42>: [P2] *${incident.title.toUpperCase()}*`;
+			const text = `:fire: RESTARTED: <#unit-test-breaking-42>: [P2] *${incident.title}*`;
 
 			slack.notifyRestarted(incident, "#main-room");
 
@@ -663,7 +660,7 @@ describe("slack.ts", () => {
 
 		test("success with notify room", () => {
 			const incident = createIncident();
-			const text = `:fire: RESTARTED: <#unit-test-breaking-42>: [P2] *${incident.title.toUpperCase()}*`;
+			const text = `:fire: RESTARTED: <#unit-test-breaking-42>: [P2] *${incident.title}*`;
 
 			slack.notifyRestarted(incident, "#main-room", "#notify-room");
 
@@ -696,7 +693,7 @@ describe("slack.ts", () => {
 
 		test("success with low priority skipping notify room", () => {
 			const incident = createIncident({ priority: 3 });
-			const text = `:dash: RESTARTED: <#unit-test-breaking-42>: [P3] *${incident.title.toUpperCase()}*`;
+			const text = `:dash: RESTARTED: <#unit-test-breaking-42>: [P3] *${incident.title}*`;
 
 			slack.notifyRestarted(incident, "#main-room", "#notify-room");
 
