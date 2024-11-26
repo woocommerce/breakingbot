@@ -446,9 +446,8 @@ export const statusAllActiveBlocks = (
 			tracker && incident.trackerUid
 				? `, tracked in ${tracker.fmtUidForSlack(incident.trackerUid)}`
 				: "";
-		blocks.push(mrkdownBlock(headline + tracking));
-		//blocks.push(mrkdownBlock(channel));
-		blocks.push(contextBlock(`${byline}·in·${channel}`));
+		blocks.push(mrkdownBlock(headline));
+		blocks.push(contextBlock(`${byline} in ${channel}${tracking}`));
 		blocks.push(divider());
 	}
 
