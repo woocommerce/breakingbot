@@ -327,3 +327,13 @@ export const isValidTime = (time: string): boolean => {
 export const isValidHour = (time: string): boolean => {
 	return /^([1]?[0-9]|2[0-3])$/.test(time);
 };
+
+export const getTimeTravelError = (
+	parsedDatetime: DatetimeIso9075,
+	userInput: string,
+	userTimezone: string,
+	warning: string,
+): string => {
+	const localized = iso9075ToSlackDatetimeShort(parsedDatetime);
+	return `Woah there, time traveler! ${warning} We parsed your datetime as \`${parsedDatetime} +00:00 (UTC)\` (${localized} in \`${userTimezone}\`). If you were trying to provide a datetime in UTC, please put "UTC" at the end, e.g., \`${userInput} UTC\``;
+};

@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import {
+	getTimeTravelError,
 	isDatetimeInFuture,
 	isDatetimeLeftGtRight,
 	iso9075Now,
@@ -231,7 +232,7 @@ export const incidentResolve = async (
 	}
 
 	let log: LogEntry[] = [];
-	let url = undefined;
+	let url: string | undefined;
 
 	try {
 		[log, url] = await Promise.all([
@@ -796,7 +797,12 @@ export const incidentSetMitigated = async (
 		robot.incidents[room] = newIncidentMachine(incident);
 		return robot.adapter.sendError(
 			room,
-			"Woah there, time traveler! Mitigated cannot be in the future!",
+			getTimeTravelError(
+				mitigatedAt,
+				userInput,
+				userTimezone,
+				"Mitigated cannot be in the future!",
+			),
 			messageId,
 		);
 	}
@@ -958,7 +964,12 @@ export const incidentSetGenesis = async (
 	if (isDatetimeLeftGtRight(genesisAt, incident.createdAt)) {
 		return robot.adapter.sendError(
 			room,
-			"Woah there, time traveler! Genesis must be before incident start!",
+			getTimeTravelError(
+				genesisAt,
+				userInput,
+				userTimezone,
+				"Genesis must be before incident start!",
+			),
 			messageId,
 		);
 	}
@@ -1015,7 +1026,12 @@ export const incidentSetDetected = async (
 	if (isDatetimeLeftGtRight(detectedAt, incident.createdAt)) {
 		return robot.adapter.sendError(
 			room,
-			"Woah there, time traveler! Detected must be before incident start!",
+			getTimeTravelError(
+				detectedAt,
+				userInput,
+				userTimezone,
+				"Detected must be before incident start!",
+			),
 			messageId,
 		);
 	}

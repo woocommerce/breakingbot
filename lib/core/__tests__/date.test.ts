@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import {
+	getTimeTravelError,
 	humanDateDiff,
 	humanDateDiffShort,
 	isDatetimeInFuture,
@@ -440,6 +441,20 @@ describe("date.ts", () => {
 			expect(isValidHour("abc")).toBe(false);
 			expect(isValidHour("12abc")).toBe(false);
 			expect(isValidHour("twenty-three")).toBe(false);
+		});
+	});
+
+	describe("getTimeTravelError", () => {
+		test("returns the correct error message for a genesis before the incident starts", () => {
+			const result = getTimeTravelError(
+				"2023-01-01 00:00:00",
+				"2024-12-31 23:59:59",
+				"Narnia/Wardrobe",
+				"Meep! Meep!",
+			);
+			expect(result).toBe(
+				'Woah there, time traveler! Meep! Meep! We parsed your datetime as `2023-01-01 00:00:00 +00:00 (UTC)` (<!date^1672531200^{date_short_pretty} {time}|2023-01-01 00:00:00 +00:00 (UTC)> in `Narnia/Wardrobe`). If you were trying to provide a datetime in UTC, please put "UTC" at the end, e.g., `2024-12-31 23:59:59 UTC`',
+			);
 		});
 	});
 });
