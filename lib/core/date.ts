@@ -335,5 +335,14 @@ export const getTimeTravelError = (
 	warning: string,
 ): string => {
 	const localized = iso9075ToSlackDatetimeShort(parsedDatetime);
-	return `Woah there, time traveler! ${warning} We parsed your datetime as \`${parsedDatetime} +00:00 (UTC)\` (${localized} in \`${userTimezone}\`). If you were trying to provide a datetime in UTC, please put "UTC" at the end, e.g., \`${userInput} UTC\``;
+	let errorMessage = `Woah there, time traveler! ${warning} We parsed your datetime as \`${parsedDatetime} +00:00 (UTC)\` (${localized} in \`${userTimezone}\`).`;
+
+	if (
+		!userInput.toLowerCase().endsWith("utc") &&
+		!userInput.toLowerCase().endsWith("z")
+	) {
+		errorMessage += ` If you were trying to provide a datetime in UTC, please put "UTC" at the end, e.g., \`${userInput} UTC\``;
+	}
+
+	return errorMessage;
 };
