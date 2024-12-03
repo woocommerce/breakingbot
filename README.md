@@ -32,7 +32,7 @@ Comm Platform, at present, is entwined with Hubot and Slack specifically. But we
 
 ### Create a `.env` file
 
-Copy `.env.example` file to `.env`. This file will be read by `docker-compose-yml` and will override the defaults there.
+Copy `.env.example` file to `.env`. This file will be read by `docker-compose.yml` and will override the defaults there.
 
 ```sh
 cp .env.example .env
