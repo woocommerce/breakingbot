@@ -93,6 +93,8 @@ import type { ChatRoomUid, ChatUserId } from "../../../types/index.js";
 import type { CommPlatform } from "../../comm-platform.js";
 import type { IssueTracker } from "../../issue-tracker.js";
 
+import { HttpsProxyAgent } from "https-proxy-agent";
+
 const HUBOT_ADAPTER_CONNECTED = "connected";
 const HUBOT_CMD_DELIMITER = ".";
 const HUBOT_ERROR = "error";
@@ -1759,10 +1761,17 @@ export default {
 		const appToken = process.env.SLACK_APP_TOKEN || "";
 		const logger = new PinoLogger(robot.logger);
 
+		const proxyUrl = process.env.HTTPS_PROXY;
+		const agent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined;
+
 		return new Slack(
 			robot,
-			new SocketModeClient({ appToken, logger }),
-			new WebClient(process.env.SLACK_BOT_TOKEN, { logger }),
+			new SocketModeClient({
+				appToken,
+				logger,
+				clientOptions: agent ? { agent: agent } : {},
+			}),
+			new WebClient(process.env.SLACK_BOT_TOKEN, { logger, agent }),
 		);
 	},
 };
