@@ -256,6 +256,11 @@ export interface CommPlatform {
 		tracker: IssueTracker,
 		messageId?: string,
 	): Promise<unknown>;
+	sendVersionMessage(
+		channel: string,
+		version: string,
+		timestamp: string,
+	): Promise<unknown>;
 	sendStatus(
 		room: string,
 		incident: Incident,

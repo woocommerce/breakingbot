@@ -53,6 +53,7 @@
 //   `.breakings` - shows all the breaking channels in progress
 //   `.issue` - Show the current tracking issue
 //   `.mainchannel` - shows the current main breaking routing channel
+//   `.version` - shows the breaking bot version as per package.json
 //
 // Notes:
 //   <optional notes required for the script>
@@ -115,6 +116,7 @@ import {
 	logAddPr,
 } from "../handlers/log.js";
 import { getHelpCommands } from "../help.js";
+import packageJson = require("../../../../package.json");
 
 import type { BreakingBot } from "../../../types/index.js";
 
@@ -640,6 +642,14 @@ export default async (robot: BreakingBot) => {
 			}
 
 			incidentStatus(robot, room, message.id);
+		},
+	);
+
+	robot.hear(
+		/^\.version$/i,
+		{ id: "bot.version" },
+		({ envelope: { room }, message }) => {
+			robot.adapter.sendVersionMessage(room, packageJson.version, message.id);
 		},
 	);
 

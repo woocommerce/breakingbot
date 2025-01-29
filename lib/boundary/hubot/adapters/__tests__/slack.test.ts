@@ -227,6 +227,22 @@ describe("slack.ts", () => {
 		);
 	});
 
+	test("sendVersionMessage", () => {
+		// Act
+		slack.sendVersionMessage("C8732838", "1.1.1", "m123");
+
+		// Assert
+		expect(webClient.chat.postMessage).toHaveBeenCalledWith(
+			expect.objectContaining({
+				blocks: [mrkdownBlock("Breaking Bot v1.1.1")],
+				channel: "C8732838",
+				text: "Breaking Bot v 1.1.1",
+				// biome-ignore lint/style/useNamingConvention: Slack defined
+				thread_ts: "m123",
+			}),
+		);
+	});
+
 	test("sendRoomEnterWelcome", () => {
 		const incident = createIncident({
 			chatRoomUid: "C8732838",

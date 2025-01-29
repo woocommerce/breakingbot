@@ -1134,6 +1134,19 @@ export class Slack extends Adapter implements CommPlatform {
 		);
 	}
 
+	sendVersionMessage(
+		channel: string,
+		version: string,
+		timestamp: string,
+	): Promise<unknown> {
+		return this.#replyThreaded(
+			channel,
+			[mrkdownBlock(`Breaking Bot v${version}`)],
+			`Breaking Bot v ${version}`,
+			timestamp,
+		);
+	}
+
 	sendTrackingIssue(
 		channel: string,
 		incident: Incident,
