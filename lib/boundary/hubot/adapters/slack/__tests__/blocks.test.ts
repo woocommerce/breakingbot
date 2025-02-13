@@ -9,6 +9,7 @@ import {
 	componentsAddedBlocks,
 	divider,
 	headerBlock,
+	introNewIncidentBlocks,
 	mitigatedBlocks,
 	mrkdownBlock,
 	mrkdownList,
@@ -216,6 +217,64 @@ describe("slack/blocks.ts", () => {
 			"Header: BREAKING NEWS",
 			"Description: Something Happened",
 			"Footer: Vince",
+		);
+		expect(result).toEqual(expectedOutput);
+	});
+
+	test("introNewIncidentBlocks", () => {
+		const expectedOutput = [
+			{ type: "divider" },
+			{
+				type: "header",
+				text: {
+					type: "plain_text",
+					text: "BREAKING NEWS",
+					emoji: true,
+				},
+			},
+			{
+				type: "section",
+				text: {
+					type: "mrkdwn",
+					text: "<#C1234567890>",
+				},
+			},
+			{
+				elements: [
+					{
+						type: "mrkdwn",
+						text: "Started by <@U1234567890>",
+					},
+				],
+				type: "context",
+			},
+			{ type: "divider" },
+			{
+				text: {
+					text: `> *Next Steps*
+>
+> Please nominate someone to run ${"`"}.point${"`"} and ${"`"}.comms${"`"} *ASAP*.
+>
+> *<https://automattic.com|Breaking Incident Runbook>*
+>
+> :dart: <https://automattic.com|How to run point>
+> :mega: <https://automattic.com|How to run comms>
+> :ambulance: <https://automattic.com|How to run triage>
+> :hammer_and_wrench: <https://automattic.com|How to run eng>
+>
+> See ${"`"}.commands${"`"} for help on interacting with the bot.
+`,
+					type: "mrkdwn",
+				},
+				type: "section",
+			},
+		];
+
+		const result = introNewIncidentBlocks(
+			"C1234567890",
+			"U1234567890",
+			"BREAKING NEWS",
+			config,
 		);
 		expect(result).toEqual(expectedOutput);
 	});

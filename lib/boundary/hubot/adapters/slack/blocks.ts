@@ -206,7 +206,11 @@ export const introNewIncidentBlocks = (
 	config: AppConfig,
 	formattedTrackerUid?: string,
 ) => {
-	const blocks = newBreakingBlocks(title, chatRoomUid, createdBy);
+	const blocks = newBreakingBlocks(
+		title,
+		fmtChannel(chatRoomUid),
+		`Started by ${fmtUser(createdBy)}`,
+	);
 
 	if (formattedTrackerUid) {
 		blocks.push(
