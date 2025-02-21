@@ -6,6 +6,8 @@ Breaking Bot is a chat bot for coordinating responses to "breaking incidents". I
 
 [Tumblr](https://engineering.tumblr.com) built the bot as `bb8` many moons ago. [WordPress VIP](https://wpvip.com) retuned the bot. And [Automattic](https://automattic.com/about) open sourced it.
 
+This particular fork of Breaking Bot is for WooCommerce. WooCommerce has a slightly different incident management process than WordPress VIP, and a slightly different Slack channel structure.
+
 ## Architecture
 
 Breaking Bot is composed of the following major pieces:
