@@ -1,70 +1,50 @@
 import type { PriorityConfig } from "./types.js";
 
 export const priorityConfig: PriorityConfig = {
-	default: 2,
-	priorities: {
-		1: {
-			name: "P1",
-			emoji: "fire",
-			description:
-				"Critical issue that warrants public notification and liaison with executive teams, sending tweet, etc. The site is in a critical state and is actively impacting a large number of customers. Or we have an obviously critical security incident. All hands on deck! Highest communication cadence required.",
-			aliases: ["hi", "high", "critical", "crit"],
-			nag: {
-				nagIntervalsSeconds: {
-					noComms: 120,
-					noPoint: 180,
-					needCommUpdate: 1800,
-					needInitialComm: 360,
-				},
-			},
-			reportRequired: true,
-			reviewRequired: true,
-			isHighPriority: true,
-		},
-		2: {
-			name: "P2",
-			emoji: "fire",
-			description:
-				"Something is seriously broken or degraded; but the blast radius is limited. Most breaking incidents fall into this category. _Serious_ security incidents involving _more than one_ customer fall into this category.",
-			aliases: ["mid", "med", "medium", "normal"],
-			nag: {
-				nagIntervalsSeconds: {
-					noComms: 1200,
-					noPoint: 1800,
-					needCommUpdate: 3600,
-					needInitialComm: 360,
-				},
-			},
-			reportRequired: true,
-			reviewRequired: true,
-			isHighPriority: true,
-		},
-		3: {
-			name: "P3",
-			emoji: "dash",
-			description:
-				"Something is broken, or not fully working as intended, but it's not resulting in customer-facing errors or is impacting a singular or very small segment of customers. It's below “urgent”, but it needs to be fixed with high priority. Security incidents involving a _single_ customer fall here. Most plugin vulnerability incidents also belong here.",
-			aliases: ["lo", "low", "lite", "light"],
-			nag: {
-				nagIntervalsSeconds: {
-					noComms: 1200,
-					noPoint: 1800,
-					needInitialComm: 600,
-				},
-			},
-		},
-		4: {
-			name: "P4",
-			emoji: "heavy_multiplication_x",
-			description:
-				"Not a breaking incident. These are bugs or improvements that should be instead moved to sprint ticket work to be prioritized as time allows.",
-			aliases: ["backlog", "none"],
-		},
-		5: {
-			name: "P5",
-			emoji: "heavy_multiplication_x",
-			description: "Not a breaking incident. Not an issue at all.",
-			aliases: ["wontfix"],
-		},
-	},
+  default: 2,
+  priorities: {
+    1: {
+      name: "SEV1",
+      emoji: "fire",
+      description:
+        "Significant impact or loss of service affecting every or significant number of merchants, including: Noticeable disruption that either leads to a critical impact on business operations or directly results in revenue loss, The experience of either the merchant or the shopper, or both, are severely affected to the extent that normal operations are not able to proceed, or Fatal errors on the store triggered in normal use, except for the cases of some heavy/hacky customizations. Broken critical flows for a small subset of merchants (edge cases) where no workaround available even by downgrading a plugin. Data loss or data corruption. Inability to build and release new versions. Compliance, regulatory, or legal issues.",
+      aliases: ["hi", "high", "critical", "crit"],
+      nag: {
+        nagIntervalsSeconds: {
+          noComms: 1800, // 30 minutes if no comms assigned
+          noPoint: 600, // 10 minutes if no point assigned
+          needCommUpdate: 14000, // comms update every 4 hours
+          needInitialComm: 3600, // 1 hour if no initial comms update
+        },
+      },
+      reportRequired: true,
+      reviewRequired: true,
+      isHighPriority: true,
+    },
+    2: {
+      name: "SEV2",
+      emoji: "fire",
+      description:
+        "Core functionality is affected for a small subset of merchants, however, temporary alternative methods for achieving similar functionality are available, including plugin downgrade to previous versions. Non-critical features within the product are experiencing a loss of functionality for all or significant number of merchants, however, the product remains operable. Features or functionality that significantly impact reliability, stability, performance, or developer productivity.",
+      aliases: ["mid", "med", "medium", "normal"],
+      nag: {
+        nagIntervalsSeconds: {
+          noComms: 1800, // 30 minutes if no comms assigned
+          noPoint: 1800, // 30 minutes if no point assigned
+          needCommUpdate: 28000, // comms update every 8 hours
+          needInitialComm: 3600, // 1 hour if no initial comms update
+        },
+      },
+      reportRequired: true,
+      reviewRequired: true,
+      isHighPriority: true,
+    },
+    3: {
+      name: "SEV3",
+      emoji: "dash",
+      description:
+        "Non-critical features within the product are experiencing a loss of functionality for a small subset of merchants, or workarounds are available without the need to downgrade a plugin. This issues is high priority, but can wait until the next release.",
+      aliases: ["lo", "low", "lite", "light", "backlog", "none", "wontfix"],
+    },
+  },
 } as const;
