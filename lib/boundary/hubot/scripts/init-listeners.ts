@@ -14,6 +14,7 @@
 //   `.pr <url>` - Adds a PR or code change to the incident in progress
 //   `.prs` - Show all PRs or code changes attached to the incident in progress
 //   `.factor <factor>` - Adds a PR, code change, other link, or even just text to describe the contributing factor
+//   `.factorrm <factor>` - Remove a factor you added in error.
 //   `.factors` - Show all the contributing factors attached to the incident in progress
 //   `.components` - Show what impacted components this incident is effecting
 //   `.component <component>[,<component>]` - Adds component as an impacted component for this incident. Comma separated components for multiple!
@@ -108,6 +109,7 @@ import {
   logAddFactor,
   logAddNote,
   logAddPr,
+  logRemoveFactor,
 } from "../handlers/log.js";
 import { getHelpCommands } from "../help.js";
 import packageJson = require("../../../../package.json");
@@ -412,6 +414,14 @@ export default async (robot: BreakingBot) => {
     { id: "incident.factor:add", requireUpdatableIncident: true },
     ({ envelope: { room }, match, message }) => {
       logAddFactor(robot, room, match[2], message.user.id, message.id);
+    }
+  );
+
+  robot.hear(
+    /^\.factorrm\b\s+(\S.*)$/i,
+    { id: "incident.factor:remove", requireIncident: true },
+    ({ envelope: { room }, match, message }) => {
+      logRemoveFactor(robot, room, match[1], message.id);
     }
   );
 
