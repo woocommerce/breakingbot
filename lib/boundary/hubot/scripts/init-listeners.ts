@@ -11,8 +11,6 @@
 //   `.restart` - Marks an ongoing incident both unmitigated and unresolved. Indicates that a previous .mitigated and/or .allclear call was premature and the outage persists.
 //   `.title <title>` - Sets the title of the incident
 //   `.help` - Outputs some help text and the breaking incident runbook links
-//   `.ai|actionitem <title> [=> summary]` - Adds an action item to be followed up on during postmortem
-//   `.ais|actionitems` - Lists action items
 //   `.pr <url>` - Adds a PR or code change to the incident in progress
 //   `.prs` - Show all PRs or code changes attached to the incident in progress
 //   `.factor <factor>` - Adds a PR, code change, other link, or even just text to describe the contributing factor
@@ -362,23 +360,6 @@ export default async (robot: BreakingBot) => {
     { id: "incident.detected:set", requireUpdatableIncident: true },
     ({ envelope: { room }, match, message }) => {
       incidentSetDetected(robot, room, match[1], message.user.id, message.id);
-    }
-  );
-
-  robot.hear(
-    /^\.(ai|actionitem)\b\s+(\S.*)$/i,
-    { id: "incident.actionitem:add", requireUpdatableIncident: true },
-    ({ envelope: { room }, match, message }) => {
-      logAddActionItem(robot, room, match[2], message.user.id, message.id);
-    }
-  );
-
-  robot.hear(
-    /^\.(ais|actionitems)$/i,
-    { id: "incident.actionitems:get", requireIncident: true },
-    async ({ envelope: { room }, message }) => {
-      const ais = await getLogAisDb(robot.db, robot.incidents[room].data().id);
-      robot.adapter.sendAiList(room, ais, robot.tracker, message.id);
     }
   );
 
