@@ -21,10 +21,6 @@
 //   `.component <component>[,<component>]` - Adds component as an impacted component for this incident. Comma separated components for multiple!
 //   `.componentrm <component>` - Remove a component you added in error.
 //   `.commands` - Show all available commands
-//   `.blockers` - Shows any active blockers
-//   `.blocker|blocked <whomst> [=> <reason>]` - Set the incident to blocked on a 3rd party. Blocked indicates that no work on the incident can progress until unblocked. Reason is optional, use => as separator. See .unblocked
-//   `.unblocked <id>` - Remove an active blocker by its id. See .blockers
-//   `.unblockall`- Remove all active blockers. See .blockers
 //   `.point <user>` - Sets point to <user> (omit <user> to take point yourself)
 //   `.comms <user>` - Sets comms to <user> (omit <user> to take comms yourself)
 //   `.triage <user>` - Sets triage to <user> (omit <user> to take triage yourself)
@@ -602,41 +598,6 @@ export default async (robot: BreakingBot) => {
     { id: "log.notes:add", requireUpdatableIncident: true },
     ({ envelope: { room }, match, message }) => {
       logAddNote(robot, room, match[2], message.user.id, message.id);
-    }
-  );
-
-  robot.hear(
-    /^\.blockers$/i,
-    { id: "blockers:get", requireIncident: true },
-    ({ envelope: { room }, message }) => {
-      const incident = robot.incidents[room].data();
-      robot.adapter.sendBlockersList(room, incident.blockers, message.id);
-    }
-  );
-
-  robot.hear(
-    blockerAddRegex(),
-    { id: "blocker:add", requireIncident: true },
-    ({ envelope: { room }, match, message }) => {
-      const whomst = match[1] ? match[1].trim() : match[1];
-      const reason = match[2] ? match[2].trim() : match[2];
-      addBlocker(robot, room, whomst, reason, message.user.id, message.id);
-    }
-  );
-
-  robot.hear(
-    /^\.unblock(?:ed)?\b\s+(\d+)$/i,
-    { id: "blocker:unblock", requireIncident: true },
-    ({ envelope: { room }, match, message }) => {
-      removeBlocker(robot, room, Number(match[1]), message.user.id, message.id);
-    }
-  );
-
-  robot.hear(
-    /^\.unblock(?:ed)?all$/i,
-    { id: "blocker:unblockall", requireIncident: true },
-    ({ envelope: { room }, message }) => {
-      removeAllBlockers(robot, room, message.user.id, message.id);
     }
   );
 
