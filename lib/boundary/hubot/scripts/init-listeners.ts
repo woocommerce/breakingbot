@@ -22,7 +22,6 @@
 //   `.commands` - Show all available commands
 //   `.point <user>` - Sets point to <user> (omit <user> to take point yourself)
 //   `.comms <user>` - Sets comms to <user> (omit <user> to take comms yourself)
-//   `.triage <user>` - Sets triage to <user> (omit <user> to take triage yourself)
 //   `.eng <user>` - Sets eng to <user> (omit <user> to take eng yourself)
 //   `.notes` - Displays internal notes
 //   `.notes|note <message>` - Adds internal notes to the incident
@@ -284,29 +283,6 @@ export default async (robot: BreakingBot) => {
     ({ envelope: { room }, match, message }) => {
       const normalized = robot.adapter.normalizeUserIdInput(match[1]);
       incidentSetComms(robot, room, normalized, message.user.id, message.id);
-    }
-  );
-
-  robot.hear(
-    /^\.triage\b\s*$/i,
-    { id: "incident.triage:set", requireActiveIncident: true },
-    ({ envelope: { room }, message }) => {
-      incidentSetTriage(
-        robot,
-        room,
-        message.user.id,
-        message.user.id,
-        message.id
-      );
-    }
-  );
-
-  robot.hear(
-    /^\.triage\b\s+(\S.*)$/i,
-    { id: "incident.triage:set", requireActiveIncident: true },
-    ({ envelope: { room }, match, message }) => {
-      const normalized = robot.adapter.normalizeUserIdInput(match[1]);
-      incidentSetTriage(robot, room, normalized, message.user.id, message.id);
     }
   );
 
