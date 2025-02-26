@@ -48,6 +48,7 @@
 //   `.issue` - Show the current tracking issue
 //   `.mainchannel` - shows the current main breaking routing channel
 //   `.version` - shows the breaking bot version as per package.json
+//   `.testlead <user>` - Sets testlead to <user> (omit <user> to take testlead yourself)
 //
 // Notes:
 //   <optional notes required for the script>
@@ -102,6 +103,7 @@ import {
   incidentTutorial,
   incidentUncancel,
   incidentUnresolve,
+  incidentSetTestLead,
 } from "../handlers/incident.js";
 import {
   logAddActionItem,
@@ -306,6 +308,29 @@ export default async (robot: BreakingBot) => {
     ({ envelope: { room }, match, message }) => {
       const normalized = robot.adapter.normalizeUserIdInput(match[1]);
       incidentSetEngLead(robot, room, normalized, message.user.id, message.id);
+    }
+  );
+
+  robot.hear(
+    /^\.testlead\b\s*$/i,
+    { id: "incident.testlead:set", requireActiveIncident: true },
+    ({ envelope: { room }, message }) => {
+      incidentSetTestLead(
+        robot,
+        room,
+        message.user.id,
+        message.user.id,
+        message.id
+      );
+    }
+  );
+
+  robot.hear(
+    /^\.testlead\b\s+(\S.*)$/i,
+    { id: "incident.testlead:set", requireActiveIncident: true },
+    ({ envelope: { room }, match, message }) => {
+      const normalized = robot.adapter.normalizeUserIdInput(match[1]);
+      incidentSetTestLead(robot, room, normalized, message.user.id, message.id);
     }
   );
 
