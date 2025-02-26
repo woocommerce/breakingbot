@@ -1386,7 +1386,7 @@ export class Slack extends Adapter implements CommPlatform {
     const testLeadStr = testLead ? `Test: <@${testLead}>` : "";
 
     const topic = [
-      `:rotating_light: ${priorityLabel}${trackerLink} ${title}`,
+      `:information_source: ${priorityLabel}${trackerLink} ${title}`,
       pointStr,
       commsStr,
       triageStr,

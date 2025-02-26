@@ -20,13 +20,14 @@
 //   `.component <component>[,<component>]` - Adds component as an impacted component for this incident. Comma separated components for multiple!
 //   `.componentrm <component>` - Remove a component you added in error.
 //   `.commands` - Show all available commands
-//   `.point <user>` - Sets point to <user> (omit <user> to take point yourself)
-//   `.comms <user>` - Sets comms to <user> (omit <user> to take comms yourself)
-//   `.eng <user>` - Sets eng to <user> (omit <user> to take eng yourself)
+//   `.point <user>` - Sets incident point to <user> (omit <user> to take point yourself)
+//   `.comms <user>` - Sets incident comms to <user> (omit <user> to take comms yourself)
+//   `.eng <user>` - Sets lead engineer to <user> (omit <user> to take lead engineer yourself)
+//   `.testlead <user>` - Sets test lead to <user> (omit <user> to take test lead yourself)
 //   `.notes` - Displays internal notes
 //   `.notes|note <message>` - Adds internal notes to the incident
 //   `.affected` - Displays list of affected items
-//   `.affected <item>[,<item>]` - Add an item to the list of affected. Comma separated for multiple!
+//   `.affected <item>[,<item>]` - Add an item to the list of affected. Comma separated for multiple! Could be a theme, extension, hosting provider, etc.
 //   `.affectedrm <item>` - Remove an item to the list of affected
 //   `.notify <message>` - Updates comms with a message, and sends appropriate Slack updates
 //   `.detected <when>` - Tracks the time we detected the root cause of this issue. (i.e. when the alerts fired, monitoring picked this up, etc). Converts to UTC but knows _your_ timezone, so you can denote without fancy TZing. (Related: Core 4 metrics)
@@ -34,7 +35,7 @@
 //   `.status` - Checks the status of ongoing incidents
 //   `.summary` - Checks the current executive summary of the incident in progress
 //   `.summary <summary>` - Updates the summary for the incident. This should be read as an executive summary, describing the tl;dr: that we know about scope, impact, and cause. Updates to .summary are expected periodically as our understanding of the incident deepens.
-//   `.s<level>|sev <level>|severity <level> [<reason>]` - Sets the severity for the incident. Typically this looks like .s1, .s2, or .s3. See .severities for details. Optional reason, if you want to justify your severity selection.
+//   `.s<level>|sev<level>|severity<level> [<reason>]` - Sets the severity for the incident. Typically this looks like .s1, .s2, or .s3. See .severities for details. Optional reason, if you want to justify your severity selection.
 //   `.severities` - Show the valid severity levels for .severity command
 //   `.cancel` - Cancel out a false-positive breaking without running an incident review
 //   `.uncancel` - Uncancel a canceled incident
@@ -45,16 +46,14 @@
 //   `.next` - Run the RFR wizard
 //   `.history` - shows incident log of events
 //   `.breakings` - shows all the breaking channels in progress
-//   `.issue` - Show the current tracking issue
 //   `.mainchannel` - shows the current main breaking routing channel
 //   `.version` - shows the breaking bot version as per package.json
-//   `.testlead <user>` - Sets testlead to <user> (omit <user> to take testlead yourself)
 //
 // Notes:
 //   <optional notes required for the script>
 //
 // Author:
-//   WPVIP
+//   WPVIP orginally, customized for Woo
 
 import { isAnyCore4Set } from "../../../core/metrics.js";
 import {
@@ -626,25 +625,6 @@ export default async (robot: BreakingBot) => {
     { id: "incident.showcomms", requireIncident: true },
     ({ envelope: { room }, message }) => {
       incidentHistory(robot, room, message.id);
-    }
-  );
-
-  robot.hear(
-    /^\.(issue|ticket)$/i,
-    { id: "incident.trackingissue:get", requireIncident: true },
-    ({ envelope: { room }, message }) => {
-      const incident = robot.incidents[room].data();
-
-      if (!incident.trackerUid || !robot.tracker) {
-        return robot.adapter.sendError(room, "No tracking found!", message.id);
-      }
-
-      robot.adapter.sendTrackingIssue(
-        room,
-        incident,
-        robot.tracker,
-        message.id
-      );
     }
   );
 

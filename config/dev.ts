@@ -40,4 +40,8 @@ export const devConfig: AppConfig = {
   commPlatform: devSlackConfig,
   priorities: priorityConfig,
   runbookRootUrl: process.env.RUNBOOK_ROOT_URL,
+  runbookPointUrl: process.env.RUNBOOK_POINT_URL,
+  runbookCommsUrl: process.env.RUNBOOK_COMMS_URL,
+  runbookEngLeadUrl: process.env.RUNBOOK_ENG_LEAD_URL,
+  runbookTestLeadUrl: process.env.RUNBOOK_TEST_LEAD_URL,
 } as const;
